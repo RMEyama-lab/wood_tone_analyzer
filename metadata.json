@@ -1,0 +1,8 @@
+{
+  "name": "TimberEcho Analyzer",
+  "description": "Wood acoustic analyzer for measurement of strike sounds with peak hold and auto-trigger features.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
+}
