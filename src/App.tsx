@@ -46,6 +46,7 @@ export default function App() {
   const rafIdRef = useRef<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const triggerTimeRef = useRef<number>(0);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Initialize Audio
   const startAudio = async () => {
@@ -63,6 +64,7 @@ export default function App() {
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
       const source = audioCtxRef.current.createMediaStreamSource(stream);
       source.connect(analyserRef.current);
       
@@ -80,6 +82,13 @@ export default function App() {
   const stopAudio = () => {
     setStatus('IDLE');
     if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    
+    // Explicitly stop all microphone tracks
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+
     audioCtxRef.current?.close();
     audioCtxRef.current = null;
   };
@@ -309,6 +318,17 @@ export default function App() {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Handle visibility change to stop mic when backgrounded
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && status !== 'IDLE') {
+        stopAudio();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [status]);
 
   return (
     <div className="h-screen bg-[#0A0A0A] text-[#E0E0E0] font-sans flex flex-col overflow-hidden selection:bg-amber-500/30 select-none">
