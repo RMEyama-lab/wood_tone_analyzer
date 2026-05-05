@@ -372,37 +372,9 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col p-1.5 md:p-2 gap-2 overflow-hidden">
-        {/* Compact Stats Grid */}
-        <div className="grid grid-cols-4 gap-1.5 shrink-0">
-            <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
-              <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Peak Freq</div>
-              <div className="text-sm font-mono text-amber-500 font-bold leading-none">
-                {peakFreq.toLocaleString()}<span className="text-[8px] ml-0.5 opacity-40">Hz</span>
-              </div>
-            </div>
-            <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
-              <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Peak Mag</div>
-              <div className="text-sm font-mono text-[#E0E0E0] font-bold leading-none">
-                {peakMag !== -Infinity ? peakMag.toFixed(1) : '--'}<span className="text-[8px] ml-0.5 opacity-40">dB</span>
-              </div>
-            </div>
-            <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
-              <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Trigger</div>
-              <div className="text-sm font-mono text-red-500 font-bold leading-none">
-                {thresholdDb.toFixed(0)}<span className="text-[8px] ml-0.5 opacity-40">dB</span>
-              </div>
-            </div>
-            <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
-              <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Status</div>
-              <div className={`text-sm font-mono font-bold leading-none ${status === 'TRIGGERED' ? 'text-red-500' : (status === 'ARMED' ? 'text-amber-500' : (status === 'PENDING_TRIGGER' ? 'text-white' : 'text-cyan-500'))}`}>
-                  {status === 'PENDING_TRIGGER' ? 'CAPTURE' : status}
-              </div>
-            </div>
-        </div>
-
-        {/* Main Spectrum Graph Area (Maximizing space) */}
-        <div className="flex-1 min-h-0 flex flex-col gap-1.5">
+      <main className="flex-1 flex flex-col landscape:flex-row p-1.5 md:p-2 gap-1.5 md:gap-2 overflow-hidden">
+        {/* Left/Main Section: Spectrum Graph Area */}
+        <div className="flex-1 min-h-0 flex flex-col">
           <div className="flex-1 bg-[#080808] border border-[#2A2A2A] rounded relative overflow-hidden flex flex-col shadow-inner">
              <div className="absolute top-2 right-2 z-10 hidden sm:flex gap-3 bg-black/60 p-1.5 rounded backdrop-blur-md border border-white/5 items-center">
                 <div className="flex items-center gap-1.5">
@@ -415,7 +387,7 @@ export default function App() {
                 </div>
                 {status !== 'IDLE' && (
                   <div className="ml-2 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse"></span>
+                    <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse"></div>
                     <span className="text-[7px] font-mono text-red-500/80 uppercase">Sensors Active</span>
                   </div>
                 )}
@@ -447,97 +419,87 @@ export default function App() {
               />
             </div>
           </div>
-          
-          {/* Ultralight Controls Footer */}
+        </div>
+
+        {/* Right/Side Section: Stats and Controls */}
+        <div className="shrink-0 flex flex-col gap-1.5 landscape:w-48 landscape:md:w-56 overflow-y-auto landscape:overflow-y-visible">
+          {/* Ultralight Controls Panel */}
           <div className="bg-[#111] border border-[#2A2A2A] rounded p-2 flex flex-col gap-2 shrink-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  {/* Trigger Threshold */}
-                  <div className="bg-[#1A1A1A]/50 px-2 py-1.5 rounded">
-                      <div className="flex justify-between items-center mb-0.5">
-                          <label className="text-[7px] uppercase tracking-[0.2em] text-[#555] font-bold">Trigger dB</label>
-                          <span className={`text-[8px] font-mono font-bold ${status === 'IDLE' ? 'text-gray-700' : 'text-red-500'}`}>
-                            {thresholdDb.toFixed(1)}
-                          </span>
-                      </div>
-                      <input 
-                        type="range" 
-                        min={MIN_DB} 
-                        max={MAX_DB} 
-                        step="0.5" 
-                        value={thresholdDb}
-                        disabled={status === 'IDLE'}
-                        onChange={(e) => setThresholdDb(parseFloat(e.target.value))}
-                        className="w-full h-1 bg-[#222] rounded appearance-none cursor-pointer accent-red-500 disabled:opacity-10"
-                      />
-                  </div>
+              {/* Control Row: Threshold + Freq Slider */}
+              <div className="grid grid-cols-2 landscape:grid-cols-1 gap-2">
+                {/* Trigger & Level Threshold */}
+                <div className="bg-[#1A1A1A]/50 px-2 py-1 rounded h-9 flex flex-col justify-center">
+                    <div className="flex justify-between items-center mb-0.5">
+                        <label className="text-[7px] uppercase tracking-[0.2em] text-[#555] font-bold">Trigger & Sense</label>
+                        <span className={`text-[8px] font-mono font-bold ${status === 'IDLE' ? 'text-gray-700' : 'text-red-500'}`}>
+                          {thresholdDb.toFixed(1)}
+                        </span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min={MIN_DB} 
+                      max={MAX_DB} 
+                      step="0.5" 
+                      value={thresholdDb}
+                      disabled={status === 'IDLE'}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setThresholdDb(val);
+                        setCrosshairDb(val);
+                      }}
+                      className="w-full h-1 bg-[#222] rounded appearance-none cursor-pointer accent-red-500 disabled:opacity-10"
+                    />
+                </div>
 
-                  {/* Crosshair Freq */}
-                  <div className="bg-[#1A1A1A]/50 px-2 py-1.5 rounded">
-                      <div className="flex justify-between items-center mb-0.5">
-                          <label className="text-[7px] uppercase tracking-[0.2em] text-[#555] font-bold">Freq Hz</label>
-                          <span className={`text-[8px] font-mono font-bold ${status === 'IDLE' ? 'text-gray-700' : 'text-amber-500'}`}>
-                            {Math.round(crosshairFreq)}
-                          </span>
-                      </div>
-                      <input 
-                        type="range" 
-                        min={Math.log10(MIN_FREQ)} 
-                        max={Math.log10(MAX_FREQ)} 
-                        step="0.01" 
-                        value={Math.log10(crosshairFreq)}
-                        disabled={status === 'IDLE'}
-                        onChange={(e) => setCrosshairFreq(Math.pow(10, parseFloat(e.target.value)))}
-                        className="w-full h-1 bg-[#222] rounded appearance-none cursor-pointer accent-amber-500 disabled:opacity-10"
-                      />
-                  </div>
-
-                  {/* Crosshair Level */}
-                  <div className="bg-[#1A1A1A]/50 px-2 py-1.5 rounded">
-                      <div className="flex justify-between items-center mb-0.5">
-                          <label className="text-[7px] uppercase tracking-[0.2em] text-[#555] font-bold">Level dB</label>
-                          <span className={`text-[8px] font-mono font-bold ${status === 'IDLE' ? 'text-gray-700' : 'text-cyan-500'}`}>
-                            {crosshairDb.toFixed(1)}
-                          </span>
-                      </div>
-                      <input 
-                        type="range" 
-                        min={MIN_DB} 
-                        max={MAX_DB} 
-                        step="0.5" 
-                        value={crosshairDb}
-                        disabled={status === 'IDLE'}
-                        onChange={(e) => setCrosshairDb(parseFloat(e.target.value))}
-                        className="w-full h-1 bg-[#222] rounded appearance-none cursor-pointer accent-cyan-500 disabled:opacity-10"
-                      />
-                  </div>
+                {/* Inspection Frequency Slider */}
+                <div className="bg-[#1A1A1A]/50 px-2 py-1 rounded h-9 flex flex-col justify-center">
+                    <div className="flex justify-between items-center mb-0.5">
+                        <label className="text-[7px] uppercase tracking-[0.2em] text-[#555] font-bold">Inspect Freq</label>
+                        <span className={`text-[8px] font-mono font-bold ${status === 'IDLE' ? 'text-gray-700' : 'text-amber-500'}`}>
+                          {Math.round(crosshairFreq)}
+                        </span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min={Math.log10(MIN_FREQ)} 
+                      max={Math.log10(MAX_FREQ)} 
+                      step="0.01" 
+                      value={Math.log10(crosshairFreq)}
+                      disabled={status === 'IDLE'}
+                      onChange={(e) => setCrosshairFreq(Math.pow(10, parseFloat(e.target.value)))}
+                      className="w-full h-1 bg-[#222] rounded appearance-none cursor-pointer accent-amber-500 disabled:opacity-10"
+                    />
+                </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-1.5 mt-0.5">
-                  <button 
-                    onClick={() => setStatus(status === 'ARMED' ? 'ACTIVE' : 'ARMED')}
-                    disabled={status === 'IDLE' || status === 'TRIGGERED' || status === 'PENDING_TRIGGER'}
-                    className={`w-full h-8 rounded text-[9px] font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-1.5 touch-manipulation shadow-md ${
-                      status === 'ARMED' 
-                        ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
-                        : 'bg-[#2A2A2A] border border-white/5 text-amber-500 hover:bg-[#333] disabled:opacity-20'
-                    }`}
-                  >
-                    {status === 'ARMED' ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-                    {status === 'ARMED' ? 'ARMED' : 'ARM'}
-                  </button>
+              <div className="flex flex-col gap-1.5 mt-0.5">
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button 
+                      onClick={() => setStatus(status === 'ARMED' ? 'ACTIVE' : 'ARMED')}
+                      disabled={status === 'IDLE' || status === 'TRIGGERED' || status === 'PENDING_TRIGGER'}
+                      className={`w-full h-8 rounded text-[9px] font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-1.5 touch-manipulation shadow-md ${
+                        status === 'ARMED' 
+                          ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
+                          : 'bg-[#2A2A2A] border border-white/5 text-amber-500 hover:bg-[#333] disabled:opacity-20'
+                      }`}
+                    >
+                      {status === 'ARMED' ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                      {status === 'ARMED' ? 'ARMED' : 'ARM'}
+                    </button>
 
-                  <button 
-                    onClick={() => {
-                      if (status === 'ACTIVE' || status === 'ARMED' || status === 'PENDING_TRIGGER') {
-                        setStatus('TRIGGERED');
-                        if (peakHoldArrayRef.current) detectPeak(peakHoldArrayRef.current, sampleRate);
-                      }
-                    }}
-                    disabled={status === 'IDLE' || status === 'TRIGGERED'}
-                    className="w-full h-8 border border-[#2A2A2A] bg-[#2A2A2A]/20 text-cyan-500 text-[9px] font-black uppercase tracking-[0.1em] rounded hover:bg-[#333] disabled:opacity-20 transition-all flex items-center justify-center gap-1.5 touch-manipulation shadow-md px-1"
-                  >
-                    <Square className="w-3 h-3" /> STOP
-                  </button>
+                    <button 
+                      onClick={() => {
+                        if (status === 'ACTIVE' || status === 'ARMED' || status === 'PENDING_TRIGGER') {
+                          setStatus('TRIGGERED');
+                          if (peakHoldArrayRef.current) detectPeak(peakHoldArrayRef.current, sampleRate);
+                        }
+                      }}
+                      disabled={status === 'IDLE' || status === 'TRIGGERED'}
+                      className="w-full h-8 border border-[#2A2A2A] bg-[#2A2A2A]/20 text-cyan-500 text-[9px] font-black uppercase tracking-[0.1em] rounded hover:bg-[#333] disabled:opacity-20 transition-all flex items-center justify-center gap-1.5 touch-manipulation shadow-md px-1"
+                    >
+                      <Square className="w-3 h-3" /> STOP
+                    </button>
+                  </div>
 
                   <button 
                     onClick={() => {
@@ -547,8 +509,36 @@ export default function App() {
                     disabled={status === 'IDLE' || status === 'PENDING_TRIGGER'}
                     className="w-full h-8 border border-[#2A2A2A] bg-[#2A2A2A]/20 text-[#666] text-[9px] font-black uppercase tracking-[0.1em] rounded hover:bg-[#333] disabled:opacity-20 transition-all flex items-center justify-center gap-1.5 touch-manipulation shadow-md"
                   >
-                    <RefreshCw className="w-3 h-3" /> RESET
+                    <RefreshCw className="w-3 h-3" /> RESET PEAK
                   </button>
+              </div>
+          </div>
+
+          {/* Compact Stats Grid */}
+          <div className="grid grid-cols-4 landscape:grid-cols-2 gap-1.5 shrink-0">
+              <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
+                <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Peak Freq</div>
+                <div className="text-sm font-mono text-amber-500 font-bold leading-none">
+                  {peakFreq.toLocaleString()}<span className="text-[8px] ml-0.5 opacity-40">Hz</span>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
+                <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Peak Mag</div>
+                <div className="text-sm font-mono text-[#E0E0E0] font-bold leading-none">
+                  {peakMag !== -Infinity ? peakMag.toFixed(1) : '--'}<span className="text-[8px] ml-0.5 opacity-40">dB</span>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
+                <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Trigger</div>
+                <div className="text-sm font-mono text-red-500 font-bold leading-none">
+                  {thresholdDb.toFixed(0)}<span className="text-[8px] ml-0.5 opacity-40">dB</span>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-[#2A2A2A] p-2 rounded flex flex-col items-center">
+                <div className="text-[7px] text-[#666] uppercase tracking-[0.2em] mb-0.5">Status</div>
+                <div className={`text-sm font-mono font-bold leading-none ${status === 'TRIGGERED' ? 'text-red-500' : (status === 'ARMED' ? 'text-amber-500' : (status === 'PENDING_TRIGGER' ? 'text-white' : 'text-cyan-500'))}`}>
+                    {status === 'PENDING_TRIGGER' ? 'CAPTURE' : status}
+                </div>
               </div>
           </div>
         </div>
